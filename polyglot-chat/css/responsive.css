@@ -1,0 +1,19 @@
+/* css/responsive.css — mobile-first adjustments */
+@media (max-width: 600px) {
+  .app-shell { padding: 0; }
+  .screen { border-radius: 0; min-height: 100vh; }
+  .chat-screen { height: 100dvh; }
+  .msg { max-width: 88%; }
+  .card-btn { flex: 1 1 100%; }
+}
+
+/* Keyboard-friendly: keep composer usable when virtual keyboard opens */
+@media (max-height: 500px) and (orientation: landscape) {
+  .chat-screen { height: 100dvh; }
+}
+
+/* Tablets / desktop */
+@media (min-width: 900px) {
+  .app-shell { max-width: 720px; padding-top: 28px; padding-bottom: 28px; }
+  .chat-screen { height: calc(100vh - 56px); border-radius: var(--radius); }
+}
