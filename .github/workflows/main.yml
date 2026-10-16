@@ -1,0 +1,60 @@
+name: Hermes Agent Telegram
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hermes-telegram
+  cancel-in-progress: false
+
+jobs:
+  hermes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl git python3 python3-venv
+
+      - name: Install Hermes Agent
+        run: |
+          curl -fsSL \
+            https://hermes-agent.nousresearch.com/install.sh \
+            -o /tmp/hermes-install.sh
+          bash /tmp/hermes-install.sh
+
+      - name: Verify installation
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          hermes --version
+
+      - name: Configure and start gateway
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_ALLOWED_USERS: ${{ secrets.TELEGRAM_ALLOWED_USERS }}
+          VYCEAI_API_KEY: ${{ secrets.VYCEAI_API_KEY }}
+          VYCEAI_BASE_URL: ${{ secrets.VYCEAI_BASE_URL }}
+          VYCEAI_MODEL: ${{ secrets.VYCEAI_MODEL }}
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.local/bin:$PATH"
+
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] ||
+             [ -z "$TELEGRAM_ALLOWED_USERS" ] ||
+             [ -z "$VYCEAI_API_KEY" ] ||
+             [ -z "$VYCEAI_BASE_URL" ] ||
+             [ -z "$VYCEAI_MODEL" ]; then
+            echo "Required GitHub Secrets are missing."
+            exit 1
+          fi
+
+          hermes model --help
+          hermes gateway --help
+
+          echo "Installation verified."
+          echo "Check the Hermes provider and gateway instructions above."
